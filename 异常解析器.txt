@@ -1,0 +1,25 @@
+1、shiro中的异常
+shiro中所有异常的父类：ShiroException，继承了RuntimeException
+
+** IncorrectCredentialsException：密码不正确
+    org.apache.shiro.authc.IncorrectCredentialsException: Submitted credentials for token [org.apache.shiro.authc.UsernamePasswordToken - zhang, rememberMe=false] did not match the expected credentials.
+** UnknownAccountException：用户名不存在
+    org.apache.shiro.authc.UnknownAccountException: Realm [org.apache.shiro.realm.text.IniRealm@3e6fa38a] was unable to find account data for the submitted AuthenticationToken [org.apache.shiro.authc.UsernamePasswordToken - zhang12, rememberMe=false].
+** LockedAccountException：账号冻结，该异常不会主动抛出，如果需要直接使用。
+
+2、异常解析器
+不允许底层模块私自处理异常。
+使用异常解析器，对个模块各层抛出的异常进行统一的处理。
+
+使用步骤：
+第一步：自定义异常解析器
+自定义的异常解析器需要实现 org.springframework.web.servlet 包下的 HandlerExceptionResolver 接口
+public class MyExceptionResolver implements HandlerExceptionResolver{}
+
+实现该接口中的
+public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {}方法
+在该方法中对各种异常进行判断处理。
+
+第二步：配置自定义的异常处理器Bean
+在springMVC的配置文件中将该Bean注入到springMvc的容器中
+<bean class="com.vainglory.resolver.MyExceptionResolver"></bean>

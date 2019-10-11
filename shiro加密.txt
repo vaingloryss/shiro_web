@@ -1,0 +1,63 @@
+1、加密：
+用户密码信息不允许明文存储。
+不可逆加密算法：MD5、SHA
+所谓不可逆，即由密文不能逆向推出明文。
+
+** MD5：
+MD5信息摘要算法（英语：MD5 Message-Digest Algorithm），一种被广泛使用的密码散列函数，可以产生出一个128位（16字节）的散列值（hash value），
+用于确保信息传输完整一致。MD5由美国密码学家罗纳德·李维斯特（Ronald Linn Rivest）设计。
+
+** SHA：
+安全散列算法（英语：Secure Hash Algorithm，缩写为SHA）是一个密码散列函数家族，是FIPS所认证的安全散列算法。能计算出一个数字消息所对应到的，
+长度固定的字符串（又称消息摘要）的算法。且若输入的消息不同，它们对应到不同字符串的机率很高。
+SHA家族的五个算法，分别是SHA-1、SHA-224、SHA-256、SHA-384，和SHA-512。
+
+2、shiro加密
+
+shiro支持hash(散列)加密，常见的如 md5, sha等
+** 基本加密：
+明文--散列算法--》密文
+密码简单时容易被破解。
+** 盐值加密：
+明文+随机盐值--散列算法--》密文
+提高密码的复杂程度。
+** 盐值迭代加密：
+明文+盐值--散列算法--》密文a;
+密文a+盐值--散列算法*n--》最终密文;
+进一步提升密码的复杂度。
+
+建议使用盐值迭代加密算法，迭代次数1000+。
+
+3、加密步骤
+第一步：得随机盐值
+user.setSalt(UUID.randomUUID().toString());
+第二步：加密，sha256算法，随机盐，迭代1000次
+Sha256Hash sha256Hash = new Sha256Hash(user.getPassword(),user.getSalt(),1000);
+第三步：Base64格式化，
+user.setPassword(sha256Hash.toBase64());
+第四步：将用户信息 (包括密码的密文 和 盐) 存入数据库
+userMapper.add(user);
+
+4、密码比对
+登录时，需要把密码采用与注册时一样的加密策略与数据库中加密之后的密码进行比对
+
+第一步：在ini配置文件中配置密码比对器和比对规则
+声明密码比对器
+credentialsMatcher=org.apache.shiro.authc.credential.HashedCredentialsMatcher
+声明加密时采用的算法
+credentialsMatcher.hashAlgorithmName=sha-256
+声明迭代次数
+credentialsMatcher.hashIterations=1000
+指定密码最终格式，true=hex格式  false=base64格式
+credentialsMatcher.storedCredentialsHexEncoded=false
+比对器关联给realm,则realm中对用户做身份认证时，可以使用加密比对器，对密文做比对
+realm1 = com.zhj.realm.MyRealm
+realm1.credentialsMatcher=$credentialsMatcher
+realm关联给securityManager
+securityManager.realms=$realm1
+
+第二步：修改Realm，在Realm的doGetAuthenticationInfo方法的返回值中添加盐值
+return new SimpleAuthenticationInfo(user.getUsername(),
+                                        user.getPassword(),
+                                        ByteSource.Util.bytes(user.getSalt()),
+                                        getName());

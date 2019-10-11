@@ -1,0 +1,44 @@
+shiro标签库
+shiro提供了很多标签，用于在jsp中做安全校验。完成对页面元素的访问控制
+
+使用步骤：
+第一步：导入shiro标签库
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
+
+第二步：使用
+
+<%--------------身份认证---------------%>
+<%--已登录--%>
+<shiro:authenticated>
+    <%--获取用户名--%>
+    <shiro:principal/>
+</shiro:authenticated>
+
+<%--未登录--%>
+<shiro:notAuthenticated>
+    <a href="${pageContext.request.contextPath}/">请登录</a>
+</shiro:notAuthenticated>
+
+<%--已登录或记住我--%>
+<shiro:user>
+
+</shiro:user>
+
+<%--游客（未登录且未记住我）--%>
+<shiro:guest>
+
+</shiro:guest>
+
+<%----------------角色验证------------------%>
+<%--多角色--%>
+<shiro:hasAnyRoles name="admin,manager"></shiro:hasAnyRoles>
+<%--单角色--%>
+<shiro:hasRole name="admin"></shiro:hasRole>
+<%--非指定角色--%>
+<shiro:lacksRole name="user"></shiro:lacksRole>
+
+<%------------------------权限相关-------------------------%>
+<%--有指定权限--%>
+<shiro:hasPermission name="user:delete"></shiro:hasPermission>
+<%--无指定标签--%>
+<shiro:lacksPermission name="user:insert"></shiro:lacksPermission>

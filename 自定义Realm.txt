@@ -1,0 +1,4 @@
+自定义Realm
+
+1、实现Realm接口
+2、继承authorizingRealm
