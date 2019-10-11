@@ -36,8 +36,10 @@
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <!--注入数据源-->
         <property name="dataSource" ref="datasource"/>
+        <!--配置别名-->
+        <property name="typeAliasesPackage" value="com.vainglory.domain"/>
         <!--指定Mybatis核心配置文件-->
-        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!--<property name="configLocation" value="classpath:mybatis-config.xml"/>-->
     </bean>
     <!--配置Mapper扫描器-->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
